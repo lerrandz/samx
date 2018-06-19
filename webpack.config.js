@@ -2,27 +2,27 @@ const path = require('path');
 
 module.exports = {
   entry: './src/index.js',
+  mode: 'development',
   output: {
-    path: path.resolve('dist'),
-    filename: 'main.js'
+    path: path.resolve(__dirname, 'dist'),
+    filename: 'main.js',
+    library: 'samx',
+    libraryTarget: 'commonjs2'
   },
+  target: 'node',
   module: {
     rules: [
-      { test: /\.css$/,
-        use: [
-          { loader: "style-loader" },
-          { loader: "css-loader" }
-        ]
-      },
       {
-        test: /\.js$/,
+        test: /\.(js)?$/,
         exclude: /node_modules/,
-        use: "babel-loader"
-      }, {
-        test: /\.jsx?$/,
-        exclude: /node_modules/,
-        use: "babel-loader"
+        use: {
+            loader: 'babel-loader'
+        }
       }
     ]
-  }
+  },
+  externals: {
+    react: 'commonjs2 react',
+    mobx: 'commonjs2 mobx',
+ },
 }
