@@ -1,0 +1,11 @@
+{
+  "name": "@invisible/samx",
+  "version": "1.0.0",
+  "description": "Invisible's Frontend Stack using Mobx, React and SAM Pattern",
+  "main": "index.js",
+  "repository": "git@github.com:invisible-tech/samx.git",
+  "author": "Invisible Technologies Inc. <engineering@invisible.email>",
+  "license": "MIT",
+  "dependencies": {
+  }
+}
