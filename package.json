@@ -1,0 +1,15 @@
+{
+  "name": "samx",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:invisible-tech/samx.git",
+  "author": "Invisible Technologies Inc.",
+  "license": "MIT",
+  "dependencies": {
+    "debug": "^3.1.0",
+    "lodash": "^4.17.10",
+    "mobx": "^5.0.3",
+    "mobx-react": "^5.2.3",
+    "react-dom": "^16.4.1"
+  }
+}
