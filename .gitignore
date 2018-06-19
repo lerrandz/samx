@@ -10,9 +10,6 @@ dist
 # Google
 storage
 
-# ignore the docs for now. We may decide to publish this later
-docs
-
 # Logs
 npm-debug.log*
 *.log
@@ -76,7 +73,3 @@ lcov.info
 
 tmp/*
 !tmp/.gitkeep
-
-
-# Hamza's idea drafting
-idea
