@@ -5,10 +5,9 @@ const globalConfig = {
   enforceActions: 'strict',
 }
 
-const developmentConfig = {
-  ...globalConfig,
+const developmentConfig = Object.assign({}, globalConfig, {
   // reactionScheduler: (f) => { setTimeout(f, 100) },
-}
+})
 
 export const config = {
   development: developmentConfig,
