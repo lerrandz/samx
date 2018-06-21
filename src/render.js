@@ -12,8 +12,10 @@ import { getModels } from './store'
  */
 export const Render = (Component, DOM) =>
   render(
-    <Provider models={getModels()}>
-      <Component />
-    </Provider>,
+    React.createElement(
+      Provider,
+      { models: getModels() },
+      React.createElement(Component)
+    ),
     DOM
   )
