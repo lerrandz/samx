@@ -32,13 +32,16 @@ export const Model = (name , { schema, acceptor }) => {
     runInAction(name, () => { set(model, value) })
   }
 
-  model.propose = isUndefined(acceptor)
-    ? modelSetter
-    : proposition => {
-      d(`Calling acceptor for ${name}`)
-      const currentModel = modelGetter(model)
-      acceptor(modelSetter, proposition, currentModel)
-    }
+  model.propose = proposition => {
+    const currentModel = modelGetter(model)
+    if (proposition instanceof Function) proposition = proposition(currentModel)
+
+    if (isUndefined(acceptor)) return modelSetter(proposition)
+    else return proposition => {
+        d(`Calling acceptor for ${name}`)
+        acceptor(modelSetter, proposition, currentModel)
+      }
+  }
 
   registerModel(name, model)
 }
