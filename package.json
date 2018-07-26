@@ -6,6 +6,10 @@
   "repository": "git@github.com:invisible-tech/samx.git",
   "author": "Invisible Technologies Inc. <engineering@invisible.email>",
   "license": "MIT",
+  "peerDependencies": {
+    "react": "^16.3.2",
+    "react-dom": "^16.3.2"
+  },
   "dependencies": {
     "debug": "^3.1.0",
     "lodash": "^4.17.10",
