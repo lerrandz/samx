@@ -37,10 +37,10 @@ export const Model = (name , { schema, acceptor }) => {
     if (proposition instanceof Function) proposition = proposition(currentModel)
 
     if (isUndefined(acceptor)) return modelSetter(proposition)
-    else return proposition => {
-        d(`Calling acceptor for ${name}`)
-        acceptor(modelSetter, proposition, currentModel)
-      }
+    else {
+      d(`Calling acceptor for ${name}`)
+      return acceptor(modelSetter, proposition, currentModel)
+    }
   }
 
   registerModel(name, model)
