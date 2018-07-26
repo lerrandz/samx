@@ -1,3 +1,6 @@
+*v1.1.1*
+_Fix: Defining an acceptor stopped models from receiving propositions_
+
 *v1.1.0*
 _Feat: Add support for State based propositions_
 > Basically this injects the current model representation when the
