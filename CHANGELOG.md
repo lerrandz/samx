@@ -1,3 +1,6 @@
+*v1.1.2*
+_Fix: MobX faulty `configure` call_
+
 *v1.1.1*
 _Fix: Defining an acceptor stopped models from receiving propositions_
 
