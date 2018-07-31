@@ -1,9 +1,8 @@
 'use strict'
 
 import { configure } from 'mobx'
-import { config } from './config'
 
-configure(config[process.env.NODE_ENV] || config.development)
+configure({ enforceActions: 'strict', isolatedGlobalState: true })
 
 export { Model, Propose } from './model'
 export { State } from './state'
