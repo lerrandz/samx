@@ -1,0 +1,1 @@
+export const InvalidArgError = message => Error(`InvalidArgError: ${message}`)

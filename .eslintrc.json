@@ -1,0 +1,23 @@
+{
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "sourceType": "module",
+    "presets": [
+      ["env", {
+        "targets": {
+          "browsers": ["last 2 Chrome versions"]
+        }
+      }]
+    ],
+    "plugins": [
+      ["babel-plugin-root-import", {
+        "rootPathPrefix": "~",
+        "rootPathSuffix": "."
+      }]
+    ]
+  },
+  "extends": "@invisible",
+  "rules": {
+    "import/prefer-default-export": "off"
+  }
+}

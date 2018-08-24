@@ -1,9 +1,7 @@
-'use strict'
-
 import debug from 'debug'
-import { reaction, toJS } from 'mobx'
+
+import { reaction } from 'mobx'
 import { inject } from 'mobx-react'
-import { getModels } from './store'
 
 const d = debug('mobx-sam:State')
 
@@ -12,18 +10,21 @@ const d = debug('mobx-sam:State')
  * components to the the Model -> State chain.
  * Can receive and pass actions as well
  *
- * @param {function} fn  Pure function that takes models as argument and outputs
+ * @param {Function} getModels  The function to get the model from the store
+ * @param {Function} fn  Pure function that takes models as argument and outputs
  *                       a state representation.
- * @param {function} nap Pure function that takes state as argument.
- * @returns {function}
+ * @param {Function} nap Pure function that takes state as argument.
+ * @returns {function} sdfsdfs
+ * 
  * @example
  * const userState = State(({ models, actions }) => ({
  *   name: `${models.user.lastName.toUpperCase()}, ${models.user.firstName}`,
  *   older: models.user.age >= 18,
  * }))
+ *
  */
-export const State = (fn, nap) => {
-  d(`New State registered.`)
+export const buildStateFactory = getModels => (fn, nap) => {
+  d('New State registered.')
 
   // Set up the NAP as an observable of the State.
   // The NAP is then called everytime a model update impacts this State.

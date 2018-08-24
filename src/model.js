@@ -1,65 +1,126 @@
-'use strict'
-
 import debug from 'debug'
+
 import { observable, set, runInAction, toJS } from 'mobx'
-import { compose, reduce } from 'lodash/fp'
-import { registerModel, getModel } from './store'
 import { actionify } from './helpers'
-import { getModels } from './store'
+
+import { InvalidArgError } from './errors'
 
 const d = debug('mobx-sam:Model')
 const isUndefined = v => v === undefined
-
-export const modelGetter = model => actionify(() => toJS(model))
+const modelGetter = model => actionify(() => toJS(model))
+const modelSetter = model => log => mutation => {
+  return runInAction(log, () => {
+    set(model, mutation)
+    return modelGetter(model)
+  })
+}
 
 /**
+ * @description
+ * sdfsdf
+ *
+ * @param {* } model xcvxc
+ * @param {*} acceptor v xcvxcv
+ * @param {*} proposition  xcvxcv
+ *
+ * @return {*} what ever is returned from the acceptor.
+ */
+export const proposeToModel = model => acceptor => proposition => {
+  const applyMutation = ({
+    name: propName,
+    value: propValue,
+  }) => {
+    d(`Proposition accepted for ${propName}`, propValue)
+    return modelSetter(model)(propName)(propValue)
+  }
+
+  const currentModel = modelGetter(model)
+
+  const mutation = proposition instanceof Function ?
+    proposition(currentModel) :
+    proposition
+
+  if (isUndefined(acceptor)) return applyMutation(mutation)
+
+  return acceptor(applyMutation, mutation, currentModel)
+}
+
+/**
+ * @description
  * Register a new Model in the APP.
- * @param {string} name         Model's name.
+ *
+ * @param {Function} registerModel The function that will persist the model to the store with its name.
+ * @param {String} name         Model's name.
  * @param {Object} definition   Model's metadata.
  * @param {object} definition.schema       Model's structure that is going to be observed.
- * @param {function} [definition.acceptor] Optional: custom logic for accepting/denying
+ * @param {Function}[definition.acceptor] Optional: custom logic for accepting / denying
  *                              proposals to the Model.
  *                              This function is called with the setter()
  *                              function of the model.
  *                              The default acceptor() accepts every proposal.
+ *
+ * @returns {*}         Whatever is returned from the acceptor
+ *
  * @example
  * Model('user', { schema: { firstName: '', lastName: '', age: 0 }})
+ *
  */
-export const Model = (name , { schema, acceptor }) => {
+
+export const buildModelFactory = modelProposer => registerModel => (name, { schema, acceptor }) => {
+  if (! modelProposer || typeof modelProposer !== 'function') {
+    throw InvalidArgError('Expecting a function to propose to models')
+  }
+
+  if (! registerModel || typeof registerModel !== 'function') {
+    throw InvalidArgError('Expecting a function to register models to the store')
+  }
+
+  if (! name || name === '' || typeof name !== 'string') {
+    throw InvalidArgError('Expecting a model name, received none')
+  }
+
+  if (! (typeof schema === 'object' && ! Array.isArray(schema))) {
+    throw InvalidArgError('Expecting a model schema, received none')
+  }
+
+  const isAcceptorValid = acceptorFn => ! isUndefined(acceptorFn) && typeof acceptorFn === 'function'
+
   const model = observable(schema)
-  const modelSetter = ({ name, value }) => {
-    d(`Proposition accepted for ${name}`, value)
-    runInAction(name, () => { set(model, value) })
-  }
+  d(`Calling acceptor for ${name}`)
 
-  model.propose = proposition => {
-    const currentModel = modelGetter(model)
-    if (proposition instanceof Function) proposition = proposition(currentModel)
-
-    if (isUndefined(acceptor)) return modelSetter(proposition)
-    else {
+  model.propose = isAcceptorValid(acceptor)
+    ? modelProposer(model)((...args) => {
       d(`Calling acceptor for ${name}`)
-      return acceptor(modelSetter, proposition, currentModel)
-    }
-  }
+      return acceptor(...args)
+    })
+    : modelProposer(model)()
 
-  registerModel(name, model)
+  return registerModel(name, model)
 }
 
 /**
+ * @description
  * Proposes changes to specified model or returns its proposer
- * @param {string} name   Models name to propose values.
- * @param {value} [proposition] Optional: Object containing key/proposition you want to
+ *
+ * @param { Function } getModel The function to get the models from the store
+ * @param {String} name   Models name to propose values.
+ * @param {Object} [proposition] Optional: Object containing key/proposition you want to
  *                        update in the model.
+ *
+ * @returns {*} Whatever is returned from the propose function.
+ *
  * @example
  * Propose('user', { firstName: 'Leo' })
+ *
  */
-export const Propose = (name, proposition) => {
+export const buildProposerFactory = getModel => (name, proposition) => {
   const model = getModel(name)
 
   if (model === undefined) {
     throw Error('proposing to a non existing model')
   }
 
-  return isUndefined(proposition) ? model.propose : model.propose(proposition)
+  return isUndefined(proposition)
+    ? model.propose // auto-curry
+    : model.propose(proposition)
 }

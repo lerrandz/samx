@@ -1,18 +1,16 @@
-'use strict'
-
 import { reduce } from 'lodash/fp'
-import { action } from 'mobx'
+import { action as MobxAction } from 'mobx'
 
 export const reduceMapToObject = map => obj => {
   const keys = [...map.keys()]
-  const reducer = (obj, entry) => {
+  const reducer = (accumObj, entry) => {
     const action = map.get(entry)
-    return Object.assign(obj, {
-      [entry]: action
+    return Object.assign(accumObj, {
+      [entry]: action,
     })
   }
 
   return reduce(reducer, obj)(keys)
 }
 
-export const actionify = fn => action(fn)()
+export const actionify = fn => MobxAction(fn)()
