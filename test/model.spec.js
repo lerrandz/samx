@@ -1,21 +1,144 @@
 import 'mocha'
 
 import { expect } from 'chai'
-import { pick } from 'lodash/fp'
+import { flow, pick } from 'lodash/fp'
 
 import { toJS } from 'mobx'
 import { proposeToModel, buildModelFactory, buildProposerFactory } from '~/src/model'
 
 describe('Model', () => {
+  describe('buildProposerFactory', () => {
+    let store, model
+
+    before(() => {
+      store = {}
+      model = buildModelFactory(proposeToModel)((name, _model) => {
+        store[name] = _model
+      })('post', {
+        schema: {
+          id: 0,
+          body: '',
+        },
+      })
+    })
+
+    describe('it receives arguments', () => {
+      it('first curried argument: throws if a models getter function is not provided', () => {
+        expect(() => {
+          buildProposerFactory()
+        }).to.throw('Expecting a models getter as the first curried argument')
+      })
+
+      it('second curried argument: throws if it fails to find a register model the  provided model name', () => {
+        expect(() => {
+          buildProposerFactory(() => undefined)('car')
+        }).to.throw('proposing to a non existing model')
+      })
+    })
+
+    describe('it returns', () => {
+      let proposer, ProposerFactory
+      describe('a proposer factory', () => {
+
+        it('is a function', () => {
+          ProposerFactory = buildProposerFactory(modelName => store[modelName])
+          expect(ProposerFactory)
+            .to.be.a('function')
+        })
+
+        it('returns a curried proposer function upon receiving one argument (model name)', () => {
+          proposer = ProposerFactory('post')
+          expect(proposer).to.be.a('function')
+        })
+
+        it('the returned proposer proposes to the model properly', () => {
+          const newPost = {
+            id: 1,
+            body: 'what is up',
+          }
+
+          const modelData = proposer({
+            name: 'stubbed-proposition',
+            value: newPost,
+          })
+
+          expect(
+            flow(
+              toJS,
+              pick(['id', 'body'])
+            )(modelData)
+          )
+            .to.deep.equal(newPost)
+        })
+
+        it('returns a proposer function expecting two arguments', () => {
+          proposer = buildProposerFactory(modelName => store[modelName])
+          expect(proposer).to.be.a('function')
+        })
+
+        it('the returened proposer proposes to the model properly', () => {
+          const newPost = {
+            id: 2,
+            body: 'hella upp',
+          }
+
+          const modelData = proposer('post', {
+            name: 'stubbed-proposition',
+            value: newPost,
+          })
+
+          expect(
+            flow(
+              toJS,
+              pick(['id', 'body'])
+            )(modelData)
+          )
+            .to.deep.equal(newPost)
+        })
+
+        describe('proposers cannot accept invalid propositions', () => {
+          it('expects an object with a name and a value for every proposition', () => {
+            expect(() => {
+              proposer('post', {})
+            }).to.throw('proposition must have a name')
+
+            expect(() => {
+              proposer('post', { name: '' })
+            }).to.throw('proposition must have a value')
+          })
+
+          it('expects no other value', () => {
+            expect(() => {
+              proposer('post', {})
+            }).to.throw()
+
+            expect(() => {
+              proposer('post', '')
+            }).to.throw()
+
+            expect(() => {
+              proposer('post', 0)
+            }).to.throw()
+
+            expect(() => {
+              proposer('post', [])
+            }).to.throw()
+
+            expect(() => {
+              proposer('post', true)
+            }).to.throw()
+          })
+        })
+      })
+    })
+  })
+
   describe('buildModelFactory', () => {
     const store = {}
     const registerModel = (name, model) => {
       store[name] = model
       return model
     }
-
-    const getModels = () => store
-    const getModel = (name) => store[name]
 
     it('should be curried', () => {
       expect(buildModelFactory)
@@ -78,7 +201,7 @@ describe('Model', () => {
 
       it('should throw if it did not receive the second curried argument', () => {
         try {
-          buildModelFactory((m) => m)()
+          buildModelFactory(m => m)()
         } catch (err) {
           expect(err)
             .to.be.instanceOf(Error)
@@ -251,7 +374,7 @@ describe('Model', () => {
         }).not.to.throw()
       })
 
-      it('model.propose is functional', () => {
+      it('model.propose updates the model properly', () => {
         const newPost = {
           name: 'post.new',
           value: {
@@ -277,9 +400,5 @@ describe('Model', () => {
         expect(postIndex).to.equal(1)
       })
     })
-  })
-
-  describe('buildProposerFactory', () => {
-
   })
 })

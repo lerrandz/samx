@@ -31,6 +31,15 @@ export const proposeToModel = model => acceptor => proposition => {
     value: propValue,
   }) => {
     d(`Proposition accepted for ${propName}`, propValue)
+
+    if (propName === undefined) {
+      throw Error('proposition must have a name')
+    }
+
+    if (propValue === undefined) {
+      throw Error('proposition must have a value')
+    }
+
     return modelSetter(model)(propName)(propValue)
   }
 
@@ -113,14 +122,21 @@ export const buildModelFactory = modelProposer => registerModel => (name, { sche
  * Propose('user', { firstName: 'Leo' })
  *
  */
-export const buildProposerFactory = getModel => (name, proposition) => {
-  const model = getModel(name)
-
-  if (model === undefined) {
-    throw Error('proposing to a non existing model')
+export const buildProposerFactory = getModel => {
+  if (typeof getModel !== 'function') {
+    throw InvalidArgError('Expecting a models getter as the first curried argument')
   }
 
-  return isUndefined(proposition)
-    ? model.propose // auto-curry
-    : model.propose(proposition)
+  return (name, proposition) => {
+
+    const model = getModel(name)
+
+    if (model === undefined) {
+      throw Error('proposing to a non existing model')
+    }
+
+    return isUndefined(proposition)
+      ? model.propose // auto-curry
+      : model.propose(proposition)
+  }
 }
