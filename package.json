@@ -6,6 +6,9 @@
   "repository": "git@github.com:invisible-tech/samx.git",
   "author": "Invisible Technologies Inc. <engineering@invisible.email>",
   "license": "MIT",
+  "scripts": {
+    "dev": "parcel serve examples/index.html"
+  },
   "peerDependencies": {
     "react": "^16.3.2",
     "react-dom": "^16.3.2"
@@ -14,8 +17,11 @@
     "debug": "^3.1.0",
     "lodash": "^4.17.10",
     "mobx": "^5.0.3",
-    "mobx-react": "^5.2.3",
-    "react": "^16.4.1",
-    "react-dom": "^16.4.1"
+    "mobx-react": "^5.2.3"
+  },
+  "devDependencies": {
+    "parcel-bundler": "^1.9.7",
+    "react": "^16.3.2",
+    "react-dom": "^16.3.2"
   }
 }

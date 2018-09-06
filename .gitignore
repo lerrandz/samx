@@ -6,6 +6,7 @@ complexity.md
 dist
 .nyc_output
 .tern-port
+.cache
 
 # Google
 storage
