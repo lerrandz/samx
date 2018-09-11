@@ -7,7 +7,7 @@
   "author": "Invisible Technologies Inc. <engineering@invisible.email>",
   "license": "MIT",
   "scripts": {
-    "dev": "parcel serve examples/index.html"
+    "dev": "parcel serve examples/todo/index.html"
   },
   "peerDependencies": {
     "react": "^16.3.2",
