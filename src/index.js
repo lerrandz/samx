@@ -1,5 +1,3 @@
-'use strict'
-
 import { configure } from 'mobx'
 
 configure({ enforceActions: 'strict', isolatedGlobalState: true })
