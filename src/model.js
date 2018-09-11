@@ -2,7 +2,7 @@
 
 import debug from 'debug'
 import { observable, set, runInAction, toJS } from 'mobx'
-import { compose, reduce } from 'lodash/fp'
+import { get } from 'lodash/fp'
 import { registerModel, getModel } from './store'
 import { actionify } from './helpers'
 import { getModels } from './store'
@@ -25,25 +25,33 @@ export const modelGetter = model => actionify(() => toJS(model))
  * @example
  * Model('user', { schema: { firstName: '', lastName: '', age: 0 }})
  */
-export const Model = (name , { schema, acceptor }) => {
-  const model = observable(schema)
-  const modelSetter = ({ name, value }) => {
-    d(`Proposition accepted for ${name}`, value)
-    runInAction(name, () => { set(model, value) })
+export const Model = (name, { schema, acceptor }) => {
+  const modelObservable = observable(schema, {}, { name, deep: true })
+  const modelSetter = ({ name: proposition, key, value }) => {
+    let target
+    if (key) {
+      target = get(key)(modelObservable)
+      if (! target) throw new Error(`Couldn't find ${key} in model ${name}.`)
+    } else {
+      target = modelObservable
+    }
+    runInAction(name, () => {
+      set(target, value)
+      d(`Proposition accepted: ${proposition}`, toJS(target))
+    })
   }
 
-  model.propose = proposition => {
-    const currentModel = modelGetter(model)
-    if (proposition instanceof Function) proposition = proposition(currentModel)
+  modelObservable.propose = arg => {
+    const currentModelState = modelGetter(modelObservable)
+    const proposition = arg instanceof Function ? arg(currentModelState) : arg
 
     if (isUndefined(acceptor)) return modelSetter(proposition)
-    else {
-      d(`Calling acceptor for ${name}`)
-      return acceptor(modelSetter, proposition, currentModel)
-    }
+
+    d(`Calling acceptor for ${name}`)
+    return acceptor(modelSetter, proposition, currentModelState)
   }
 
-  registerModel(name, model)
+  registerModel(name, modelObservable)
 }
 
 /**
