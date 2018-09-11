@@ -1,0 +1,17 @@
+{
+  "env": {
+    "browser": true,
+    "node": true,
+  },
+  "extends": [
+    "@invisible",
+    "plugin:react/recommended",
+  ],
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module"
+  },
+  "rules": {
+    "import/prefer-default-export": false,
+  }
+}
