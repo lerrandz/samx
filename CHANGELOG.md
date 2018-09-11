@@ -1,3 +1,9 @@
+*v2.0.0*
+_Feat: Create State as a second observable layer that reacts as needed by updates in the Model._
+> This is a breaking change and it deprecates the former Render wrapper.
+_Feat: Proposals can now specify deep property mutation through the new `key` property._
+_Feat: View components are now observers for the State and render only if needed._
+
 *v1.1.2*
 _Fix: MobX faulty `configure` call_
 
