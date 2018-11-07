@@ -1,3 +1,6 @@
+*v2.0.1*
+_Feat: expose toJS from mobx_
+
 *v2.0.0*
 _Feat: Create State as a second observable layer that reacts as needed by updates in the Model._
 > This is a breaking change and it deprecates the former Render wrapper.
