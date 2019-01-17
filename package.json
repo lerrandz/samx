@@ -4,7 +4,10 @@
   "version": "2.0.1",
   "main": "src/index.js",
   "repository": "git@github.com:expertlead/samx.git",
-  "author": ["Invisible Technologies", "Expertlead"],
+  "author": [
+    "Invisible Technologies",
+    "Expertlead"
+  ],
   "license": "MIT",
   "scripts": {
     "dev": "parcel serve examples/todo/index.html"

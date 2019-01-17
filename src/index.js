@@ -1,6 +1,6 @@
 import { configure } from 'mobx'
 
-configure({ enforceActions: 'strict', isolatedGlobalState: true })
+configure({ enforceActions: 'always', isolatedGlobalState: true })
 
 export { Model, Propose } from './model'
 export { State } from './state'
