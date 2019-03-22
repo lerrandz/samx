@@ -6,10 +6,24 @@ const aggregateTodos = models => ({
   size: models.app.todos.length,
 })
 
+const todosStateNextActionPredicate = (state, models) => {
+  if (state.size > 100) {
+    console.log("TodosOverflow: You must do your chores!")
+  } else if (state.size < 100) {
+    console.log("Keep on adding todos still")
+  }
+}
+
 const aggregateAuthenticatedUser = ({ user }) => ({
   isAuthenticated: user.username !== '',
   userFullname: user.username,
 })
 
-export const todoState = State(aggregateTodos, { name: "todoState" })
-export const userState = State(aggregateAuthenticatedUser, { name: "userState", onlyTrack: ['user'] })
+const userStateNextActionPredicate = (state, onlyTrackedModels) => {
+  if (state.isAuthenticated) {
+    console.log("User logged in, send notification to service x")
+  }
+}
+
+export const todoState = State(aggregateTodos, todosStateNextActionPredicate)({ name: "todoState" })
+export const userState = State(aggregateAuthenticatedUser, userStateNextActionPredicate)({ name: "userState", onlyTrack: ['user'] })

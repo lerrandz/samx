@@ -7,14 +7,18 @@ import { getModels } from './store'
 
 const d = debug('samx:State')
 
-const State = (transformState, {
+const State = (transformState, nap = undefined) => ({
   name = "",
   onlyTrack,
 } = {}) => {
   d(`New state '${name || transformState.name}' registered.`)
 
   if (typeof transformState !== 'function') {
-    throw Error("SAMX: state aggregators must be functions")
+    throw Error("SAMX: state aggregator must be a function")
+  }
+
+  if (nap && typeof nap !== 'function') {
+    throw Error("SAMX: state next action predicate must be a function")
   }
 
   if (onlyTrack && !Array.isArray(onlyTrack)) {
@@ -22,7 +26,7 @@ const State = (transformState, {
   }
 
   const aggregateStateRepresentation = createTransformer(transformState)
-  const updateStateRepresentation = (stateRepresentation) => models => {
+  const updateStateRepresentationEffectFn = (stateRepresentation) => models => {
     d(`State: ${name || transformState.name } updating...`)
     const state = aggregateStateRepresentation(models)
     set(stateRepresentation, state)
@@ -55,13 +59,25 @@ const State = (transformState, {
   const initialState = aggregateStateRepresentation(retrieveModels())
   const stateRepresentation = observable(initialState)
 
+  const retrieveDataFn = () => transformState(retrieveModels())
   reaction(
-    () => transformState(retrieveModels()),
+    retrieveDataFn,
     () => {
       console.log('fired reaction')
-      updateStateRepresentation(stateRepresentation)(models)
+      updateStateRepresentationEffectFn(stateRepresentation)(retrieveModels())
     }
   )
+
+  if (nap) {
+    const nextActionPredicateEffectFn = (stateRepresentation) => (models) => () => {
+      nap(stateRepresentation, models)
+    }
+
+    reaction(
+      retrieveDataFn,
+      nextActionPredicateEffectFn(stateRepresentation)(retrieveModels())
+    )
+  }
 
   return stateRepresentation
 }
