@@ -1,3 +1,9 @@
+*v2.0.3*
+_Feat: implement transformers for state_
+
+*v2.0.2*
+_Feat: expose mobx functinoality through samx
+
 *v2.0.1*
 _Feat: expose toJS from mobx_
 
