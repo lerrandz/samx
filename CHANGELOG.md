@@ -1,3 +1,6 @@
+*v2.0.4*
+_Feat: implement nap for state_
+
 *v2.0.3*
 _Feat: implement transformers for state_
 
