@@ -1,28 +1,38 @@
 import * as React from 'react'
 import { View } from '../../../src'
-import { createTodo } from '../actions.jsx'
-import state from '../state.jsx'
+import { createTodo, login, logout } from '../actions.jsx'
+import { userState, todoState } from '../state.jsx'
 
 import ListItem from './ListItem.jsx'
 
-export default View(() => (
-  <div>
-      Hi, we have {state.size} total todos.
-      Pending:
-    <ul>
+export default View(() => {
+  return (
+    <div>
+        Hi, we have {todoState.size} total todos.
+        Pending:
+      <ul>
+        User: { userState.isAuthenticated ? userState.userFullname : "Log in please"}
+      </ul>
       {
-        state.pending.map((t, i) => <ListItem key={i} todo={t}/>)
+        !userState.isAuthenticated
+          ? <button onClick={login}>Login</button>
+          : <button onClick={logout}> logout</button>
       }
-    </ul>
-      Done:
-    <ul>
-      {
-        state.done.map((t, i) => <ListItem key={i} todo={t}/>)
-      }
-    </ul>
+      <ul>
+        {
+          todoState.pending.map((t, i) => <ListItem key={i} todo={t}/>)
+        }
+      </ul>
+        Done:
+      <ul>
+        {
+          todoState.done.map((t, i) => <ListItem key={i} todo={t}/>)
+        }
+      </ul>
 
-    <p>
-      Add new: <input type='text' onKeyPress={createTodo}/>
-    </p>
-  </div>
-))
+      <p>
+        Add new: <input type='text' onKeyPress={createTodo}/>
+      </p>
+    </div>
+  )
+})

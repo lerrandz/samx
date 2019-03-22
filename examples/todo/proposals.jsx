@@ -9,7 +9,19 @@ const proposeNewTodo = description => ({ todos }) => ({
   value: { todos: [...todos, { description, done: false, id: todos.length }] },
 })
 
+const proposeLogin = (username) => ({
+  name: 'login',
+  value: { username },
+})
+
+const proposeLogout = () => ({
+  name: 'logout',
+  value: { username: "" },
+})
+
 export {
   proposeTodoUpdate,
   proposeNewTodo,
+  proposeLogin,
+  proposeLogout,
 }
