@@ -1,7 +1,7 @@
 import debug from 'debug'
 import { reduceMapToObject } from './helpers'
 
-const d = debug('mobx-sam:Store')
+const d = debug('samx:Store')
 const modelsMap = new Map()
 
 const getModel = name => modelsMap.get(name)

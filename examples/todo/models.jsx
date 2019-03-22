@@ -5,3 +5,9 @@ Model('app', { schema: {
     { id: 0, description: 'Write example', done: true },
   ],
 } })
+
+Model('user', {
+  schema: {
+    username: "",
+  }
+})
