@@ -14,6 +14,15 @@ const todosStateNextActionPredicate = (state, models) => {
   }
 }
 
+const printDoneNap = (state) => {
+  console.log("You have completed", state.done.length, " tasks")
+}
+
+const notifyAboutSize = (state, models, dispose) => {
+  console.log("current size is", state.size)
+  dispose()
+}
+
 const aggregateAuthenticatedUser = ({ user }) => ({
   isAuthenticated: user.username !== '',
   userFullname: user.username,
@@ -26,5 +35,10 @@ const userStateNextActionPredicate = (state, onlyTrackedModels, dispose) => {
   }
 }
 
-export const todoState = State(aggregateTodos, todosStateNextActionPredicate)({ name: "todoState" })
+export const todoState = State(aggregateTodos, [
+  todosStateNextActionPredicate,
+  printDoneNap,
+  notifyAboutSize
+])({ name: "todoState" })
+
 export const userState = State(aggregateAuthenticatedUser, userStateNextActionPredicate)({ name: "userState", onlyTrack: ['user'] })
