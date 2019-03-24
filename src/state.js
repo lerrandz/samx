@@ -17,8 +17,14 @@ const State = (transformState, nap = undefined) => ({
     throw Error("SAMX: state aggregator must be a function")
   }
 
-  if (nap && typeof nap !== 'function') {
+  if (nap && typeof nap !== 'function' && !Array.isArray(nap)) {
     throw Error("SAMX: state next action predicate must be a function")
+  } else if (Array.isArray(nap)){
+    nap.forEach((n)=>{
+      if (typeof n !== 'function') {
+        throw Error("SAMX: state next action predicate must be a function")
+      }
+    })
   }
 
   if (onlyTrack && !Array.isArray(onlyTrack)) {
@@ -69,16 +75,24 @@ const State = (transformState, nap = undefined) => ({
   )
 
   if (nap) {
-    const nextActionPredicateEffectFn = (stateRepresentation) => (models) => (disposer) => () => {
-      nap(stateRepresentation, models, disposer)
+    const nextActionPredicateEffectFn = (napfn) => (stateRepresentation) => (models) => (disposer) => () => {
+      napfn(stateRepresentation, models, disposer)
     }
 
-    const dispose = reaction(
-      retrieveDataFn,
-      nextActionPredicateEffectFn(stateRepresentation)(retrieveModels())(
-        () => dispose()
+    const registerNap = (napfn) => {
+      const dispose = reaction(
+        retrieveDataFn,
+        nextActionPredicateEffectFn(napfn)(stateRepresentation)(retrieveModels())(
+          () => dispose()
+        )
       )
-    )
+    }
+
+    if (typeof nap === 'function'){
+      registerNap(nap)
+    } else if (Array.isArray(nap)) {
+      nap.forEach(registerNap)
+    }
   }
 
   return stateRepresentation

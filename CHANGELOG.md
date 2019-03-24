@@ -1,3 +1,6 @@
+*v2.0.6*
+_Feat: register one or multiple naps_
+
 *v2.0.5*
 _Feat: expose nap disposer function as a third arg to the nap function_
 
