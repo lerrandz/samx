@@ -17,7 +17,7 @@ SAMx neatly separates your data layer, your business logic layer and your presen
 SAMX defines key concepts to achieve this, and they are the following:
 
 #### Model:
-This is where you model the entities your app is expecting is expecting.
+This is where you model the entities your app is dealing with.
 The model is defined by a schema that describes the properties and the types of your entity. Also, the model is responsible for handling all data operations related to the entity it represents, i.e: validation, entity-specific business logic and so on.
 
 Example:
@@ -157,7 +157,7 @@ const IncrementPostId = () => (models) => ({
 
 #### State:
 
-A State in SAMx model represents a snapshot of the aggregated models' data, mapped into the desired schema, resulting in a specific granular state, ready to be consumed by vues, and reacted to by observers.
+A State in SAMx model represents a snapshot of the aggregated models' data, mapped into the desired schema, resulting in a specific granular state, or to be more precise, the state representation, ready to be consumed/observed by views/observers.
 
 So the state is a models' aggregator and data transformer that procudes an observable to whom the observers (views) react to efficiently.
 
@@ -175,18 +175,116 @@ We can define a state in which we only need a username, an auth token, and the p
 
 import { State } from '@expertlead/samx'
 
-const stateMapper = () => (models) => ({
+const aggregatePostingUserState = (models) => ({
   username: models.user.firstName + ' ' + models.user.lastName,
   authSecret: models.sessions.authToken,
   posts: models.post.collection.filter(post => post.userId === models.user.id)
 })
 
-export const PostingUserState = State(stateMapper)
+export const PostingUserState = State(aggregatePostingUserState)
 ```
 
 Now, you can export and consume your state however you wish, guaranteeing that as long as your state is consumed by an observer, any changes propogated to the models will be reflected to the state.
 
 The consumption of the state happens as easily as importing the named export and accessing the defined properties.
+
+You can also choose to track specific models to compute a specific state out of:
+
+Example:
+
+For a repo containing the following models:
+
+  1- posts: `{ schema: { collection: [] } }`
+  2- user: `{ schema: { id: 0, firstName: '', lastName: '', age: '' } }`
+  3- session: `{ schema : { authToken: '', expiresAt: '' } }`
+
+We can define a state in which we only need a username, an auth token, thus we only need to track the user model. This can be acheived by providing a second curried argument, being the options argument, defined as the following:
+
+```
+{
+  name: "", // name of the state, for debugging purposes
+  onlyTrack: [], // The models you which to specifically track for your state
+}
+```
+```
+import { State } from '@expertlead/samx'
+
+const aggregateUserState = ({ user }) => ({
+  username: models.user.firstName + ' ' + models.user.lastName,
+  authSecret: models.sessions.authToken,
+})
+
+export const UserState = State(aggregateUserState)({ onlyTrack: ["user"] })
+```
+
+When you choose to use the `onlyTrack` option, the models object that is passed to the state aggregator will only contain the models you chose to track, and trying to access non tracked models will result in an error.
+
+### Next Action Predicate
+
+There are common scenarios where we like to fire off an action based off of a change in state, in parallel to the main loop, or perhaps to interupt the main loop and render conditionally for instance.
+
+The SAM pattern answers this by introducing the concept of the "next action predicate".
+
+You can define a next action predicate for your state, say, to notify a service everytime a user has logged in.
+
+Example:
+
+We will define a model to hold our user entity, and then define a NAP to inform the service once the user has logged in.
+
+For a repo containing the following models:
+
+  1- user: `{ schema: { id: 0, firstName: '', lastName: '', age: '' } }`
+  2- session: `{ schema : { authToken: '', expiresAt: '' } }`
+
+We will define the `authenticatedUser` state and register a next action predicate to notify the relevant service(s) of the login of the user.
+
+
+```
+import { State } from '@expertlead/samx'
+
+const aggregateUserState = ({ user }) => ({
+  username: models.user.firstName + ' ' + models.user.lastName,
+  authSecret: models.sessions.authToken,
+})
+
+const nextActionPredicate = (state, models, dispose) => {
+  if (state.authSecret) {
+    notifyService(authSecret)
+      .then(dispose) // to remove the next action predicate once notified
+  }
+}
+
+export const UserState = State(aggregateUserState, nextActionPredicate)({ name: "userState" })
+```
+
+In the way we have defined the next action predicate, we have registered a reaction that will notify a service once the `authSecret` has received a value after a login scenario, and afterwards, we dispose of our next action predicate.
+
+If not, the next action predicate will just react everytime the SAM loop iterates, which is of course useful but for other scenarios.
+
+You can also define multiple NAPs, by simply providing an array:
+```
+import { State } from '@expertlead/samx'
+
+const aggregateUserState = ({ user }) => ({
+  username: models.user.firstName + ' ' + models.user.lastName,
+  authSecret: models.sessions.authToken,
+})
+
+const notifyUsersServerNAP = (state, models, dispose) => {
+  if (state.authSecret) {
+    notifyService(authSecret)
+      .then(dispose) // to remove the next action predicate once notified
+  }
+}
+
+const pushUserDocumentationNotificationNAP = (state, models, dispose) => {
+  if (state.authSecret && models.user.initiated) {
+    pushDocsNotification()
+  }
+}
+
+export const UserState = State(aggregateUserState, [notifyUsersServerNAP, pushUserDocumentationNotificationNAP])({ name: "userState" })
+```
 
 ### Action:
 
