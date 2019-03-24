@@ -19,9 +19,10 @@ const aggregateAuthenticatedUser = ({ user }) => ({
   userFullname: user.username,
 })
 
-const userStateNextActionPredicate = (state, onlyTrackedModels) => {
+const userStateNextActionPredicate = (state, onlyTrackedModels, dispose) => {
   if (state.isAuthenticated) {
     console.log("User logged in, send notification to service x")
+    dispose()
   }
 }
 

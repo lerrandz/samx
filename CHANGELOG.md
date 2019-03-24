@@ -1,3 +1,6 @@
+*v2.0.5*
+_Feat: expose nap disposer function as a third arg to the nap function_
+
 *v2.0.4*
 _Feat: implement nap for state_
 
