@@ -1,6 +1,6 @@
 import { configure } from 'mobx'
 
-configure({ enforceActions: 'always', isolatedGlobalState: true })
+configure({ enforceActions: 'strict', isolatedGlobalState: true })
 
 export * from 'mobx'
 

@@ -38,7 +38,7 @@ const State = (transformState, nap = undefined) => ({
   let retrieveModels = getModels
 
   if (onlyTrack) {
-    
+
     retrieveModels = () => {
       onlyTrack.forEach(
         (trackedModel) => {
@@ -69,13 +69,15 @@ const State = (transformState, nap = undefined) => ({
   )
 
   if (nap) {
-    const nextActionPredicateEffectFn = (stateRepresentation) => (models) => () => {
-      nap(stateRepresentation, models)
+    const nextActionPredicateEffectFn = (stateRepresentation) => (models) => (disposer) => () => {
+      nap(stateRepresentation, models, disposer)
     }
 
-    reaction(
+    const dispose = reaction(
       retrieveDataFn,
-      nextActionPredicateEffectFn(stateRepresentation)(retrieveModels())
+      nextActionPredicateEffectFn(stateRepresentation)(retrieveModels())(
+        () => dispose()
+      )
     )
   }
 
