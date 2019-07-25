@@ -4,10 +4,18 @@ import { createTodo, login, logout } from '../actions.jsx'
 import { userState, todoState } from '../state.jsx'
 
 import ListItem from './ListItem.jsx'
+import Form from "./Form"
+
+console.log({
+  todoState, userState
+})
 
 export default View(() => {
   return (
     <div>
+        <Form />
+        <br/>
+        <hr/>
         Hi, we have {todoState.size} total todos.
         Pending:
       <ul>
